@@ -1,0 +1,48 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  fdfsclub-api:
+    build: .
+    container_name: fdfsclub-api
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5000:5000"
+    env_file:
+      - .env
+    logging: *default-logging
+    profiles:
+      - api
+      - all
+
+  fdfsclub-worker:
+    build: .
+    container_name: fdfsclub-worker
+    restart: unless-stopped
+    command: ["node", "worker.js"]
+    env_file:
+      - .env
+    healthcheck:
+      disable: true
+    logging: *default-logging
+    profiles:
+      - worker
+      - all
+
+  fdfsclub-bms-worker:
+    build: .
+    container_name: fdfsclub-bms-worker
+    restart: unless-stopped
+    command: ["node", "worker.js"]
+    env_file:
+      - .env
+    environment:
+      WORKER_ROLE: bookmyshow
+    healthcheck:
+      disable: true
+    logging: *default-logging
+    profiles:
+      - bms-worker
